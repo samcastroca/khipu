@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     
     # Model Paths
     spam_model_path: str = "trained_models/spam_classifier.pkl"
-    phishing_url_model_path: str = "trained_models/phishing_url_classifier.pkl"
+    phishing_url_model_path: str = "trained_models/phishing_url_logistic_regression.pkl"
     suspicious_access_model_path: str = "trained_models/suspicious_access_classifier.pkl"
     
     class Config:
