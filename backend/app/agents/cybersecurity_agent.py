@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class CybersecurityAgent:
     """AI Agent for cybersecurity analysis using LangChain"""
     
-    def __init__(self, openai_api_key: str, model_name: str = "gpt-4"):
+    def __init__(self, openai_api_key: str, model_name: str = "gpt-5-mini"):
         self.openai_api_key = openai_api_key
         self.model_name = model_name
         self.llm = None
