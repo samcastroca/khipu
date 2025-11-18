@@ -1,5 +1,4 @@
 import { auth } from "@/app/(auth)/auth";
-import { RecentIncidents } from "@/components/dashboard/recent-incidents";
 import { SecurityCharts } from "@/components/dashboard/security-charts";
 import { DashboardStats } from "@/components/dashboard/stats";
 import { ThreatAlerts } from "@/components/dashboard/threat-alerts";
@@ -13,31 +12,22 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="flex h-dvh flex-col bg-background">
-      <header className="sticky top-0 z-10 flex items-center justify-between border-b bg-background px-4 py-3">
-        <div>
-          <h1 className="text-2xl font-bold">Panel de Ciberseguridad</h1>
-          <p className="text-muted-foreground text-sm">
-            Monitoreo y prevención de amenazas con IA
-          </p>
-        </div>
-      </header>
+    <div className="flex h-[calc(100dvh-3.25rem)] flex-col bg-background">
+      <div className="border-b bg-background px-4 py-3">
+        <h1 className="text-2xl font-bold">Panel de Ciberseguridad</h1>
+        <p className="text-muted-foreground text-sm">
+          Monitoreo y prevención de amenazas con IA
+        </p>
+      </div>
 
-      <main className="flex-1 overflow-auto p-4">
-        <div className="mx-auto max-w-7xl space-y-6">
-          {/* Estadísticas principales */}
+      <main className="flex-1 overflow-hidden p-4">
+        <div className="mx-auto h-full max-w-7xl space-y-6 overflow-y-auto">
           <DashboardStats />
 
-          {/* Alertas de amenazas activas */}
           <ThreatAlerts />
 
-          <div className="grid gap-6 lg:grid-cols-2">
-            {/* Gráficas de seguridad */}
-            <SecurityCharts />
+          <SecurityCharts />
 
-            {/* Incidentes recientes */}
-            <RecentIncidents />
-          </div>
         </div>
       </main>
     </div>

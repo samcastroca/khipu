@@ -2,25 +2,19 @@
 
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { memo } from "react";
 import { useWindowSize } from "usehooks-ts";
 import { PlusIcon } from "./icons";
+import { SidebarToggle } from "./sidebar-toggle";
 import { useSidebar } from "./ui/sidebar";
 
-function PureChatHeader({
-  chatId,
-  isReadonly,
-}: {
-  chatId: string;
-  isReadonly: boolean;
-}) {
+export function LayoutHeader() {
   const router = useRouter();
   const { open } = useSidebar();
-
   const { width: windowWidth } = useWindowSize();
 
   return (
-    <div className="flex items-center gap-2 px-2 py-1.5 md:px-2">
+    <header className="sticky top-0 z-10 flex items-center gap-2 border-b bg-background/95 px-2 py-1.5 backdrop-blur supports-backdrop-filter:bg-background/60 md:px-2">
+      <SidebarToggle />
       {(!open || windowWidth < 768) && (
         <Button
           className="h-8 px-2 md:h-fit md:px-2"
@@ -31,16 +25,9 @@ function PureChatHeader({
           variant="outline"
         >
           <PlusIcon />
-          <span className="md:sr-only">New Chat</span>
+          <span className="md:sr-only">Nuevo chat</span>
         </Button>
       )}
-    </div>
+    </header>
   );
 }
-
-export const ChatHeader = memo(PureChatHeader, (prevProps, nextProps) => {
-  return (
-    prevProps.chatId === nextProps.chatId &&
-    prevProps.isReadonly === nextProps.isReadonly
-  );
-});

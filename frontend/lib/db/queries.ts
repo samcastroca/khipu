@@ -1,5 +1,7 @@
 import "server-only";
 
+import type { ArtifactKind } from "@/components/artifact";
+import type { VisibilityType } from "@/components/visibility-selector";
 import {
   and,
   asc,
@@ -14,8 +16,6 @@ import {
 } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import type { ArtifactKind } from "@/components/artifact";
-import type { VisibilityType } from "@/components/visibility-selector";
 import { ChatSDKError } from "../errors";
 import type { AppUsage } from "../usage";
 import { generateUUID } from "../utils";
@@ -25,8 +25,8 @@ import {
   type DBMessage,
   document,
   message,
-  type Suggestion,
   stream,
+  type Suggestion,
   suggestion,
   type User,
   user,
@@ -99,8 +99,9 @@ export async function saveChat({
       title,
       visibility,
     });
-  } catch (_error) {
-    throw new ChatSDKError("bad_request:database", "Failed to save chat");
+  } catch (error) {
+    console.error("Failed to save chat:", error);
+    throw new ChatSDKError("bad_request:database", `Failed to save chat: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 

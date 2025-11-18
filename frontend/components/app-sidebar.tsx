@@ -1,6 +1,6 @@
 "use client";
 
-import { LayoutDashboardIcon, PlusIcon, SearchIcon } from "@/components/icons";
+import { PlusIcon } from "@/components/icons";
 import { SidebarHistory, getChatHistoryPaginationKey } from "@/components/sidebar-history";
 import { SidebarUserNav } from "@/components/sidebar-user-nav";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import {
   SidebarMenu,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { BotMessageSquare, LayoutDashboard } from "lucide-react";
 import type { User } from "next-auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -102,7 +103,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                 className="w-full justify-start gap-2"
                 variant="ghost"
               >
-                <LayoutDashboardIcon/>
+                <LayoutDashboard/>
                 <span>Dashboard</span>
               </Button>
             </Link>
@@ -111,8 +112,8 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                 className="w-full justify-start gap-2"
                 variant="ghost"
               >
-                <SearchIcon/>
-                <span>Análisis de Amenazas</span>
+                <BotMessageSquare/>
+                <span>Chat</span>
               </Button>
             </Link>
           </div>

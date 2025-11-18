@@ -1,6 +1,5 @@
 "use client";
 
-import { ChatHeader } from "@/components/chat-header";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -146,11 +145,6 @@ export function Chat({
   return (
     <>
       <div className="overscroll-behavior-contain flex h-dvh min-w-0 touch-pan-y flex-col bg-background">
-        <ChatHeader
-          chatId={id}
-          isReadonly={isReadonly}
-        />
-
         <Messages
           chatId={id}
           isArtifactVisible={false}
