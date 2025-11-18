@@ -1,15 +1,15 @@
 import type { InferSelectModel } from "drizzle-orm";
 import {
-    boolean,
-    foreignKey,
-    json,
-    jsonb,
-    pgTable,
-    primaryKey,
-    text,
-    timestamp,
-    uuid,
-    varchar,
+  boolean,
+  foreignKey,
+  json,
+  jsonb,
+  pgTable,
+  primaryKey,
+  text,
+  timestamp,
+  uuid,
+  varchar,
 } from "drizzle-orm/pg-core";
 import type { AppUsage } from "../usage";
 
