@@ -3,17 +3,19 @@ import { entitlementsByUserType } from "@/lib/ai/entitlements";
 import type { ChatModel } from "@/lib/ai/models";
 import { systemPrompt } from "@/lib/ai/prompts";
 import { myProvider } from "@/lib/ai/providers";
-import { displayThreatAnalysis } from "@/lib/ai/tools/display-threat-analysis";
+import { phishingDetector } from "@/lib/ai/tools/phishing-detector";
+import { spamClassifier } from "@/lib/ai/tools/spam-classifier";
+import { suspiciousAccessDetector } from "@/lib/ai/tools/suspicious-access-detector";
 import { isProductionEnvironment } from "@/lib/constants";
 import {
-  createStreamId,
-  deleteChatById,
-  getChatById,
-  getMessageCountByUserId,
-  getMessagesByChatId,
-  saveChat,
-  saveMessages,
-  updateChatLastContextById,
+    createStreamId,
+    deleteChatById,
+    getChatById,
+    getMessageCountByUserId,
+    getMessagesByChatId,
+    saveChat,
+    saveMessages,
+    updateChatLastContextById,
 } from "@/lib/db/queries";
 import type { DBMessage } from "@/lib/db/schema";
 import { ChatSDKError } from "@/lib/errors";
@@ -21,18 +23,18 @@ import type { ChatMessage } from "@/lib/types";
 import type { AppUsage } from "@/lib/usage";
 import { convertToUIMessages, generateUUID } from "@/lib/utils";
 import {
-  convertToModelMessages,
-  createUIMessageStream,
-  JsonToSseTransformStream,
-  smoothStream,
-  stepCountIs,
-  streamText,
+    convertToModelMessages,
+    createUIMessageStream,
+    JsonToSseTransformStream,
+    smoothStream,
+    stepCountIs,
+    streamText,
 } from "ai";
 import { unstable_cache as cache } from "next/cache";
 import { after } from "next/server";
 import {
-  createResumableStreamContext,
-  type ResumableStreamContext,
+    createResumableStreamContext,
+    type ResumableStreamContext,
 } from "resumable-stream";
 import type { ModelCatalog } from "tokenlens/core";
 import { fetchModels } from "tokenlens/fetch";
@@ -182,10 +184,12 @@ export async function POST(request: Request) {
           experimental_activeTools:
             selectedChatModel === "chat-model-reasoning"
               ? []
-              : ["displayThreatAnalysis"],
+              : ["spamClassifier", "phishingDetector", "suspiciousAccessDetector"],
           experimental_transform: smoothStream({ chunking: "word" }),
           tools: {
-            displayThreatAnalysis,
+            spamClassifier,
+            phishingDetector,
+            suspiciousAccessDetector,
           },
           experimental_telemetry: {
             isEnabled: isProductionEnvironment,

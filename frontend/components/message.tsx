@@ -12,7 +12,9 @@ import { MessageContent } from "./elements/message";
 import { Response } from "./elements/response";
 import { MessageActions } from "./message-actions";
 import { MessageEditor } from "./message-editor";
-import { ThreatAnalysisDisplay } from "./threat-analysis-display";
+import { PhishingResultDisplay } from "./phishing-result-display";
+import { SpamResultDisplay } from "./spam-result-display";
+import { SuspiciousAccessDisplay } from "./suspicious-access-display";
 
 const PurePreviewMessage = ({
   chatId,
@@ -126,21 +128,93 @@ const PurePreviewMessage = ({
               }
             }
 
-            if (type === "tool-displayThreatAnalysis") {
-              const { toolCallId, state, output } = part;
+            if (type.startsWith("tool-") && type.includes("spamClassifier")) {
+              const { toolCallId, state, output } = part as any;
 
               return (
                 <div className="my-4" key={toolCallId}>
+                  {state === "partial-call" && (
+                    <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-950/20">
+                      <div className="flex items-center gap-2">
+                        <div className="size-4 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
+                        <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                          Analizando email con modelo ML...
+                        </span>
+                      </div>
+                    </div>
+                  )}
                   {state === "output-available" && output && (
-                    <ThreatAnalysisDisplay
-                      threatType={output.analysis.threatType}
-                      riskLevel={output.analysis.riskLevel}
-                      summary={output.analysis.summary}
-                      evidence={output.analysis.evidence}
-                      recommendations={output.analysis.recommendations}
-                      details={output.analysis.details}
-                      confidence={output.analysis.confidence}
-                      affectedSystems={output.analysis.affectedSystems}
+                    <SpamResultDisplay
+                      success={output.success}
+                      prediction={output.prediction}
+                      is_spam={output.is_spam}
+                      confidence={output.confidence}
+                      details={output.details}
+                      email_preview={output.email_preview}
+                      error={output.error}
+                      message={output.message}
+                    />
+                  )}
+                </div>
+              );
+            }
+
+            if (type.startsWith("tool-") && type.includes("phishingDetector")) {
+              const { toolCallId, state, output } = part as any;
+
+              return (
+                <div className="my-4" key={toolCallId}>
+                  {state === "partial-call" && (
+                    <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-950/20">
+                      <div className="flex items-center gap-2">
+                        <div className="size-4 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
+                        <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                          Analizando URL con modelo ML...
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  {state === "output-available" && output && (
+                    <PhishingResultDisplay
+                      success={output.success}
+                      url={output.url}
+                      prediction={output.prediction}
+                      is_phishing={output.is_phishing}
+                      confidence={output.confidence}
+                      details={output.details}
+                      error={output.error}
+                      message={output.message}
+                    />
+                  )}
+                </div>
+              );
+            }
+
+            if (type.startsWith("tool-") && type.includes("suspiciousAccessDetector")) {
+              const { toolCallId, state, output } = part as any;
+
+              return (
+                <div className="my-4" key={toolCallId}>
+                  {state === "partial-call" && (
+                    <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-950/20">
+                      <div className="flex items-center gap-2">
+                        <div className="size-4 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
+                        <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                          Analizando acceso de red con modelo ML...
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  {state === "output-available" && output && (
+                    <SuspiciousAccessDisplay
+                      success={output.success}
+                      prediction={output.prediction}
+                      is_suspicious={output.is_suspicious}
+                      confidence={output.confidence}
+                      details={output.details}
+                      analyzed_params={output.analyzed_params}
+                      error={output.error}
+                      message={output.message}
                     />
                   )}
                 </div>

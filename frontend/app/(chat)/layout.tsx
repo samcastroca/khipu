@@ -23,7 +23,7 @@ export default async function Layout({
       <DataStreamProvider>
         <SidebarProvider defaultOpen={true}>
           <AppSidebar user={session?.user} />
-          <SidebarInset>
+          <SidebarInset className="flex h-dvh flex-col overflow-hidden">
             <LayoutHeader />
             {children}
           </SidebarInset>

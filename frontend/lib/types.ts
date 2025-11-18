@@ -1,6 +1,8 @@
 import type { InferUITool, UIMessage } from "ai";
 import { z } from "zod";
-import type { displayThreatAnalysis } from "./ai/tools/display-threat-analysis";
+import type { phishingDetector } from "./ai/tools/phishing-detector";
+import type { spamClassifier } from "./ai/tools/spam-classifier";
+import type { suspiciousAccessDetector } from "./ai/tools/suspicious-access-detector";
 import type { AppUsage } from "./usage";
 
 export type DataPart = { type: "append-message"; message: string };
@@ -11,10 +13,14 @@ export const messageMetadataSchema = z.object({
 
 export type MessageMetadata = z.infer<typeof messageMetadataSchema>;
 
-type displayThreatAnalysisTool = InferUITool<typeof displayThreatAnalysis>;
+type spamClassifierTool = InferUITool<typeof spamClassifier>;
+type phishingDetectorTool = InferUITool<typeof phishingDetector>;
+type suspiciousAccessDetectorTool = InferUITool<typeof suspiciousAccessDetector>;
 
 export type ChatTools = {
-  displayThreatAnalysis: displayThreatAnalysisTool;
+  spamClassifier: spamClassifierTool;
+  phishingDetector: phishingDetectorTool;
+  suspiciousAccessDetector: suspiciousAccessDetectorTool;
 };
 
 export type CustomUIDataTypes = {
