@@ -1,0 +1,35 @@
+# Archivos grandes de datos
+*.csv
+models/data/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+*.egg-info/
+dist/
+*.egg
+venv/
+env/
+.env
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Modelos entrenados grandes
+*.pkl
+*.h5
+*.joblib
+
+# Excepciones para archivos pequeños necesarios
+!backend/trained_models/.gitkeep
