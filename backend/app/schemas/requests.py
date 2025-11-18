@@ -28,22 +28,28 @@ class PhishingURLRequest(BaseModel):
 
 class SuspiciousAccessRequest(BaseModel):
     """Request schema for suspicious access detection"""
-    user_id: Optional[str] = Field(None, description="ID del usuario")
-    ip_address: str = Field(..., description="Dirección IP del acceso")
-    timestamp: Optional[str] = Field(None, description="Timestamp del acceso")
-    action: str = Field(..., description="Acción realizada")
-    location: Optional[str] = Field(None, description="Ubicación del acceso")
-    device: Optional[str] = Field(None, description="Dispositivo usado")
+    network_packet_size: int = Field(..., description="Tamaño del paquete de red", ge=0)
+    protocol_type: str = Field(..., description="Tipo de protocolo (HTTP, HTTPS, FTP, SSH, etc.)")
+    login_attempts: int = Field(..., description="Número de intentos de login", ge=0)
+    session_duration: float = Field(..., description="Duración de la sesión en minutos", ge=0)
+    encryption_used: str = Field(..., description="Tipo de encriptación (AES, RSA, None, Unknown)")
+    ip_reputation_score: float = Field(..., description="Puntuación de reputación de IP (0-100)", ge=0, le=100)
+    failed_logins: int = Field(..., description="Número de logins fallidos", ge=0)
+    browser_type: str = Field(..., description="Tipo de navegador (Chrome, Firefox, Safari, Edge, etc.)")
+    unusual_time_access: int = Field(..., description="Acceso en horario inusual (0=no, 1=sí)", ge=0, le=1)
     
     class Config:
         json_schema_extra = {
             "example": {
-                "user_id": "user_123",
-                "ip_address": "192.168.1.1",
-                "timestamp": "2025-01-15T14:30:00",
-                "action": "login_attempt",
-                "location": "Unknown",
-                "device": "Unknown Device"
+                "network_packet_size": 1200,
+                "protocol_type": "HTTP",
+                "login_attempts": 3,
+                "session_duration": 15.8,
+                "encryption_used": "AES",
+                "ip_reputation_score": 73.2,
+                "failed_logins": 1,
+                "browser_type": "Chrome",
+                "unusual_time_access": 0
             }
         }
 

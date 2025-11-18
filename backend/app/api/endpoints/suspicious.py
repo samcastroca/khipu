@@ -25,33 +25,39 @@ def get_suspicious_service():
 @router.post(
     "/check-access",
     response_model=SuspiciousAccessResponse,
-    summary="Check if access attempt is suspicious",
-    description="Analyzes access attempt data and determines if it's suspicious using a trained ML model"
+    summary="Check if network access is suspicious",
+    description="Analyzes network access data and determines if it's an attack using a trained ML model"
 )
 async def check_suspicious_access(
     request: SuspiciousAccessRequest,
     service: SuspiciousAccessService = Depends(get_suspicious_service)
 ):
     """
-    Check if an access attempt is suspicious
+    Check if network access is suspicious/attack
     
-    - **user_id**: User identifier (optional)
-    - **ip_address**: IP address of the access
-    - **timestamp**: Timestamp of the access (optional)
-    - **action**: Action performed (e.g., login_attempt, file_access)
-    - **location**: Geographic location (optional)
-    - **device**: Device information (optional)
+    - **network_packet_size**: Size of network packet
+    - **protocol_type**: Protocol used (HTTP, HTTPS, FTP, SSH, etc.)
+    - **login_attempts**: Number of login attempts
+    - **session_duration**: Duration of session in minutes
+    - **encryption_used**: Encryption type (AES, RSA, None, Unknown)
+    - **ip_reputation_score**: IP reputation score (0-100)
+    - **failed_logins**: Number of failed logins
+    - **browser_type**: Browser type (Chrome, Firefox, Safari, Edge, etc.)
+    - **unusual_time_access**: Binary flag for unusual access time (0 or 1)
     
     Returns detection result with confidence score
     """
     try:
         result = service.check_access(
-            user_id=request.user_id,
-            ip_address=request.ip_address,
-            timestamp=request.timestamp,
-            action=request.action,
-            location=request.location,
-            device=request.device
+            network_packet_size=request.network_packet_size,
+            protocol_type=request.protocol_type,
+            login_attempts=request.login_attempts,
+            session_duration=request.session_duration,
+            encryption_used=request.encryption_used,
+            ip_reputation_score=request.ip_reputation_score,
+            failed_logins=request.failed_logins,
+            browser_type=request.browser_type,
+            unusual_time_access=request.unusual_time_access
         )
         
         return SuspiciousAccessResponse(
@@ -77,5 +83,5 @@ async def health_check(service: SuspiciousAccessService = Depends(get_suspicious
     return {
         "status": "healthy",
         "service": "suspicious_access_detector",
-        "model_loaded": service.model is not None
+        "model_loaded": service.pipeline is not None
     }

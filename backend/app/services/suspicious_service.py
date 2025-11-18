@@ -1,208 +1,195 @@
 import joblib
 import os
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 import logging
-from datetime import datetime
+import pandas as pd
 
 logger = logging.getLogger(__name__)
 
 
 class SuspiciousAccessService:
-    """Service for suspicious access detection"""
+    """Service for suspicious access detection using ML pipeline"""
     
     def __init__(self, model_path: str):
         self.model_path = model_path
-        self.model = None
+        self.pipeline = None
         self._load_model()
     
     def _load_model(self):
-        """Load the trained suspicious access detection model"""
+        """Load the trained suspicious access detection pipeline"""
         try:
             if os.path.exists(self.model_path):
-                loaded_data = joblib.load(self.model_path)
-                
-                if isinstance(loaded_data, dict):
-                    self.model = loaded_data.get('model')
-                else:
-                    self.model = loaded_data
-                
-                logger.info(f"Suspicious access model loaded from {self.model_path}")
+                self.pipeline = joblib.load(self.model_path)
+                logger.info(f"✅ Suspicious access pipeline loaded from {self.model_path}")
             else:
-                logger.warning(f"Model file not found: {self.model_path}")
+                logger.warning(f"⚠️  Model file not found: {self.model_path}")
                 logger.info("Service will run in mock mode")
         except Exception as e:
-            logger.error(f"Error loading suspicious access model: {e}")
+            logger.error(f"❌ Error loading suspicious access model: {e}")
             logger.info("Service will run in mock mode")
     
-    def check_access(self, user_id: Optional[str], ip_address: str, 
-                     timestamp: Optional[str], action: str,
-                     location: Optional[str] = None, 
-                     device: Optional[str] = None) -> Dict[str, Any]:
+    def check_access(self, 
+                     network_packet_size: int,
+                     protocol_type: str,
+                     login_attempts: int,
+                     session_duration: float,
+                     encryption_used: str,
+                     ip_reputation_score: float,
+                     failed_logins: int,
+                     browser_type: str,
+                     unusual_time_access: int) -> Dict[str, Any]:
         """
-        Check if an access attempt is suspicious
+        Check if network access is suspicious/attack
         
         Args:
-            user_id: User identifier
-            ip_address: IP address of the access
-            timestamp: Timestamp of the access
-            action: Action performed
-            location: Geographic location
-            device: Device information
+            network_packet_size: Size of network packet
+            protocol_type: Protocol used (HTTP, HTTPS, FTP, SSH, etc.)
+            login_attempts: Number of login attempts
+            session_duration: Duration of session in minutes
+            encryption_used: Encryption type (AES, RSA, None, Unknown)
+            ip_reputation_score: IP reputation score (0-100)
+            failed_logins: Number of failed logins
+            browser_type: Browser type (Chrome, Firefox, Safari, Edge, etc.)
+            unusual_time_access: Binary flag for unusual access time (0 or 1)
             
         Returns:
             Dictionary with detection results
         """
         try:
-            if self.model is None:
-                return self._mock_detection(user_id, ip_address, timestamp, 
-                                           action, location, device)
+            if self.pipeline is None:
+                return self._mock_detection(
+                    network_packet_size, protocol_type, login_attempts,
+                    session_duration, encryption_used, ip_reputation_score,
+                    failed_logins, browser_type, unusual_time_access
+                )
             
-            # Extract features
-            features = self._extract_access_features(
-                user_id, ip_address, timestamp, action, location, device
-            )
+            # Create DataFrame with exact column names as in training
+            data = pd.DataFrame([{
+                "network_packet_size": network_packet_size,
+                "protocol_type": protocol_type,
+                "login_attempts": login_attempts,
+                "session_duration": session_duration,
+                "encryption_used": encryption_used,
+                "ip_reputation_score": ip_reputation_score,
+                "failed_logins": failed_logins,
+                "browser_type": browser_type,
+                "unusual_time_access": unusual_time_access
+            }])
             
-            # Make prediction
-            prediction = self.model.predict([features])[0]
+            # Make prediction (0 = normal, 1 = attack)
+            prediction = self.pipeline.predict(data)[0]
             
-            # Get probability if available
+            # Get probability
             confidence = None
-            if hasattr(self.model, 'predict_proba'):
-                probabilities = self.model.predict_proba([features])[0]
-                confidence = float(max(probabilities))
+            if hasattr(self.pipeline, 'predict_proba'):
+                probabilities = self.pipeline.predict_proba(data)[0]
+                # Use probability of predicted class
+                if prediction == 0:
+                    confidence = float(probabilities[0])
+                else:
+                    confidence = float(probabilities[1])
             else:
                 confidence = 0.75
             
-            is_suspicious = bool(prediction == 1 or prediction == 'suspicious')
+            is_attack = bool(prediction == 1)
+            
+            # Calculate risk factors
+            risk_factors = self._identify_risk_factors(
+                protocol_type, encryption_used, login_attempts,
+                failed_logins, ip_reputation_score, unusual_time_access
+            )
             
             return {
-                "is_suspicious": is_suspicious,
-                "prediction": "suspicious" if is_suspicious else "normal",
+                "is_suspicious": is_attack,
+                "prediction": "attack" if is_attack else "normal",
                 "confidence": confidence,
-                "details": self._get_details(is_suspicious, confidence, ip_address, 
-                                            location, device, action)
+                "details": {
+                    "risk_level": "high" if is_attack and confidence > 0.8 else 
+                                  "medium" if is_attack else "low",
+                    "protocol": protocol_type,
+                    "encryption": encryption_used,
+                    "login_attempts": login_attempts,
+                    "failed_logins": failed_logins,
+                    "ip_reputation": ip_reputation_score,
+                    "browser": browser_type,
+                    "unusual_time": bool(unusual_time_access),
+                    "risk_factors": risk_factors
+                }
             }
             
         except Exception as e:
-            logger.error(f"Error in suspicious access detection: {e}")
-            return self._mock_detection(user_id, ip_address, timestamp, 
-                                       action, location, device)
+            logger.error(f"❌ Error in suspicious access detection: {e}")
+            return self._mock_detection(
+                network_packet_size, protocol_type, login_attempts,
+                session_duration, encryption_used, ip_reputation_score,
+                failed_logins, browser_type, unusual_time_access
+            )
     
-    def _extract_access_features(self, user_id: Optional[str], ip_address: str,
-                                 timestamp: Optional[str], action: str,
-                                 location: Optional[str], 
-                                 device: Optional[str]) -> list:
-        """Extract features from access data"""
-        features = []
+    def _identify_risk_factors(self, protocol_type: str, encryption_used: str,
+                               login_attempts: int, failed_logins: int,
+                               ip_reputation_score: float, 
+                               unusual_time_access: int) -> list:
+        """Identify risk factors based on access patterns"""
+        risk_factors = []
         
-        # IP features
-        ip_parts = ip_address.split('.')
-        features.extend([int(part) if part.isdigit() else 0 for part in ip_parts[:4]])
+        # Unencrypted or unknown encryption
+        if encryption_used.lower() in ['none', 'unknown']:
+            risk_factors.append('no_encryption')
         
-        # Time features
-        if timestamp:
-            try:
-                dt = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
-                features.extend([dt.hour, dt.weekday()])
-            except:
-                features.extend([0, 0])
-        else:
-            features.extend([0, 0])
+        # Insecure protocol
+        if protocol_type.upper() in ['HTTP', 'FTP', 'TELNET']:
+            risk_factors.append('insecure_protocol')
         
-        # Action features
-        features.append(1 if 'login' in action.lower() else 0)
-        features.append(1 if 'failed' in action.lower() else 0)
+        # Multiple login attempts
+        if login_attempts > 5:
+            risk_factors.append('excessive_login_attempts')
         
-        # Location features
-        features.append(1 if location and location.lower() == 'unknown' else 0)
+        # Failed logins
+        if failed_logins > 2:
+            risk_factors.append('multiple_failed_logins')
         
-        # Device features
-        features.append(1 if device and device.lower() == 'unknown device' else 0)
+        # Low IP reputation
+        if ip_reputation_score < 50:
+            risk_factors.append('low_ip_reputation')
         
-        return features
+        # Unusual time access
+        if unusual_time_access == 1:
+            risk_factors.append('unusual_time_access')
+        
+        return risk_factors
     
-    def _mock_detection(self, user_id: Optional[str], ip_address: str,
-                       timestamp: Optional[str], action: str,
-                       location: Optional[str], device: Optional[str]) -> Dict[str, Any]:
+    def _mock_detection(self, network_packet_size: int, protocol_type: str,
+                       login_attempts: int, session_duration: float,
+                       encryption_used: str, ip_reputation_score: float,
+                       failed_logins: int, browser_type: str,
+                       unusual_time_access: int) -> Dict[str, Any]:
         """Mock detection when model is not available"""
-        anomaly_factors = []
-        score = 0
+        risk_factors = self._identify_risk_factors(
+            protocol_type, encryption_used, login_attempts,
+            failed_logins, ip_reputation_score, unusual_time_access
+        )
         
-        # Check for suspicious patterns
-        if location and location.lower() == 'unknown':
-            anomaly_factors.append('unknown_location')
-            score += 2
-        
-        if device and device.lower() == 'unknown device':
-            anomaly_factors.append('unknown_device')
-            score += 2
-        
-        if 'failed' in action.lower():
-            anomaly_factors.append('failed_attempt')
-            score += 3
-        
-        # Check time (if provided)
-        if timestamp:
-            try:
-                dt = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
-                if dt.hour < 6 or dt.hour > 23:
-                    anomaly_factors.append('unusual_time')
-                    score += 1
-            except:
-                pass
-        
-        # Check IP pattern
-        if ip_address.startswith('192.168.') or ip_address.startswith('10.'):
-            # Private IP - less suspicious
-            score -= 1
-        else:
-            # Public IP - check if it looks unusual
-            ip_parts = ip_address.split('.')
-            if len(ip_parts) == 4:
-                try:
-                    first_octet = int(ip_parts[0])
-                    if first_octet > 200:
-                        anomaly_factors.append('suspicious_ip_range')
-                        score += 1
-                except:
-                    pass
+        # Calculate score based on risk factors
+        score = len(risk_factors)
         
         is_suspicious = score >= 3
-        confidence = min(0.55 + (score * 0.08), 0.90)
+        confidence = min(0.5 + (score * 0.1), 0.95)
         
         return {
             "is_suspicious": is_suspicious,
-            "prediction": "suspicious" if is_suspicious else "normal",
+            "prediction": "attack" if is_suspicious else "normal",
             "confidence": confidence,
             "details": {
-                "risk_level": "high" if score >= 5 else "medium" if is_suspicious else "low",
-                "anomaly_factors": anomaly_factors,
-                "anomaly_score": score,
+                "risk_level": "high" if is_suspicious else "low",
+                "protocol": protocol_type,
+                "encryption": encryption_used,
+                "login_attempts": login_attempts,
+                "failed_logins": failed_logins,
+                "ip_reputation": ip_reputation_score,
+                "browser": browser_type,
+                "unusual_time": bool(unusual_time_access),
+                "risk_factors": risk_factors,
                 "mode": "demo"
             }
         }
-    
-    def _get_details(self, is_suspicious: bool, confidence: float,
-                     ip_address: str, location: Optional[str], 
-                     device: Optional[str], action: str) -> Dict[str, Any]:
-        """Get additional details about the detection"""
-        risk_level = "high" if is_suspicious and confidence > 0.8 else \
-                     "medium" if is_suspicious else "low"
-        
-        anomaly_factors = []
-        if is_suspicious:
-            if location and location.lower() == 'unknown':
-                anomaly_factors.append('unknown_location')
-            if device and device.lower() == 'unknown device':
-                anomaly_factors.append('unknown_device')
-            if 'failed' in action.lower():
-                anomaly_factors.append('failed_attempt')
-        
-        return {
-            "risk_level": risk_level,
-            "ip_address": ip_address,
-            "location": location or "Not provided",
-            "device": device or "Not provided",
-            "action": action,
-            "anomaly_factors": anomaly_factors
-        }
+

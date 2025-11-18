@@ -26,10 +26,11 @@ env/
 .DS_Store
 Thumbs.db
 
-# Modelos entrenados grandes
-*.pkl
-*.h5
-*.joblib
+# Modelos entrenados grandes (pero permitimos los necesarios)
+# *.pkl
+# *.h5
+# *.joblib
 
-# Excepciones para archivos pequeños necesarios
+# Excepciones para modelos necesarios del backend
+!backend/trained_models/*.pkl
 !backend/trained_models/.gitkeep
