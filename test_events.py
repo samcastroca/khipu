@@ -3,6 +3,7 @@ import json
 from datetime import datetime
 import time
 
+# comentario
 # Configuration
 BASE_URL = "http://khipu.vercel.app"
 EVENTS_ENDPOINT = f"{BASE_URL}/api/events/ingest"
