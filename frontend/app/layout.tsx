@@ -7,9 +7,16 @@ import { SessionProvider } from "next-auth/react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://chat.vercel.ai"),
-  title: "Next.js Chatbot Template",
-  description: "Next.js chatbot template using the AI SDK.",
+  metadataBase: new URL("https://khipu.vercel.app"),
+  title: "Khipu - Plataforma de Análisis de Ciberseguridad con IA",
+  description: "Plataforma avanzada de ciberseguridad con Machine Learning para detección de spam, phishing, accesos sospechosos y análisis de logs de red en tiempo real.",
+  keywords: ["ciberseguridad", "machine learning", "detección de amenazas", "análisis de red", "phishing", "spam"],
+  authors: [{ name: "Khipu Team" }],
+  openGraph: {
+    title: "Khipu - Análisis de Ciberseguridad con IA",
+    description: "Detecta amenazas en tiempo real con Machine Learning: spam, phishing, accesos sospechosos y logs de red.",
+    type: "website",
+  },
 };
 
 export const viewport = {

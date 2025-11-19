@@ -4,7 +4,7 @@ from datetime import datetime
 import time
 
 # Configuration
-BASE_URL = "http://localhost:3000"
+BASE_URL = "http://khipu.vercel.app"
 EVENTS_ENDPOINT = f"{BASE_URL}/api/events/ingest"
 
 def send_event(name, event_type, data, description):
