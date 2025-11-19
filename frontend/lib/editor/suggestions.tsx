@@ -1,3 +1,5 @@
+import { Suggestion as PreviewSuggestion } from "@/components/suggestion";
+import type { Suggestion } from "@/lib/db/schema";
 import type { Node } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import {
@@ -6,9 +8,6 @@ import {
   type EditorView,
 } from "prosemirror-view";
 import { createRoot } from "react-dom/client";
-import type { ArtifactKind } from "@/components/artifact";
-import { Suggestion as PreviewSuggestion } from "@/components/suggestion";
-import type { Suggestion } from "@/lib/db/schema";
 
 export interface UISuggestion extends Suggestion {
   selectionStart: number;
@@ -69,7 +68,6 @@ export function projectWithPositions(
 export function createSuggestionWidget(
   suggestion: UISuggestion,
   view: EditorView,
-  artifactKind: ArtifactKind = "text"
 ): { dom: HTMLElement; destroy: () => void } {
   const dom = document.createElement("span");
   const root = createRoot(dom);
@@ -114,7 +112,6 @@ export function createSuggestionWidget(
 
   root.render(
     <PreviewSuggestion
-      artifactKind={artifactKind}
       onApply={onApply}
       suggestion={suggestion}
     />

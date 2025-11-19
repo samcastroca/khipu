@@ -6,28 +6,23 @@ const NEXT_PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL || "https://vibehack
 export const suspiciousLogsDetector = tool({
   description: `Analiza logs de red/tráfico de red para detectar actividad sospechosa usando ML (DecisionTree).
   
-  IMPORTANTE: Esta herramienta REQUIERE TODOS los 9 parámetros para funcionar.
-  
   Cuándo usar:
   - Usuario menciona "log de red", "tráfico", "conexión", "paquetes"
   - Datos de red con IPs, puertos, protocolos
   - Análisis de firewall o IDS
   
-  Si el usuario NO proporciona TODOS los datos, debes:
-  1. Usar valores por defecto razonables
-  2. Inferir basándote en el contexto
-  3. Ejemplo: si solo dice "conexión SSH desde 192.168.1.1", usar: duration="5", proto="tcp", src_ip_addr="192.168.1.1", src_pt="22", dst_ip_addr="10.0.0.1", dst_pt="22", packets="50", bytes_str="2500", flags="PA"`,
+  Si el usuario NO proporciona todos los datos, la herramienta usa valores por defecto razonables.`,
   
-  parameters: z.object({
-    duration: z.string().describe("Duración en segundos. Ej: '1.5', '0.001'. Si no se proporciona, infiere un valor razonable (1-5 seg típico)"),
-    proto: z.string().describe("Protocolo. Ej: 'tcp', 'udp', 'icmp'. Si no se proporciona, usa 'tcp' como valor por defecto"),
-    src_ip_addr: z.string().describe("IP origen. Ej: '192.168.1.100'. Si no se proporciona, usa una IP privada genérica"),
-    src_pt: z.string().describe("Puerto origen. Ej: '80', '443', '22'. Si no se proporciona, infiere según contexto o usa puerto efímero"),
-    dst_ip_addr: z.string().describe("IP destino. Ej: '10.0.0.1'. Si no se proporciona, usa una IP privada genérica"),
-    dst_pt: z.string().describe("Puerto destino. Ej: '80', '443', '22'. Si no se proporciona, infiere según protocolo (80=HTTP, 443=HTTPS, 22=SSH)"),
-    packets: z.string().describe("Cantidad paquetes. Ej: '100', '1000'. Si no se proporciona, usa un valor típico (50-200)"),
-    bytes_str: z.string().describe("Bytes totales. Ej: '5000', '2.1 M'. Si no se proporciona, calcula aproximado (packets * 500)"),
-    flags: z.string().describe("Flags TCP. Ej: 'S', 'PA', 'F'. Si no se proporciona, usa 'PA' para TCP normal o '' para UDP"),
+  inputSchema: z.object({
+    duration: z.string().default("1").describe("Duración en segundos. Ej: '1.5', '0.001'. Por defecto: '1'"),
+    proto: z.string().default("tcp").describe("Protocolo. Ej: 'tcp', 'udp', 'icmp'. Por defecto: 'tcp'"),
+    src_ip_addr: z.string().default("192.168.1.100").describe("IP origen. Ej: '192.168.1.100'. Por defecto: '192.168.1.100'"),
+    src_pt: z.string().default("50000").describe("Puerto origen. Ej: '80', '443', '22'. Por defecto: '50000'"),
+    dst_ip_addr: z.string().default("10.0.0.1").describe("IP destino. Ej: '10.0.0.1'. Por defecto: '10.0.0.1'"),
+    dst_pt: z.string().default("80").describe("Puerto destino. Ej: '80', '443', '22'. Por defecto: '80'"),
+    packets: z.string().default("100").describe("Cantidad paquetes. Ej: '100', '1000'. Por defecto: '100'"),
+    bytes_str: z.string().default("5000").describe("Bytes totales. Ej: '5000', '2.1 M'. Por defecto: '5000'"),
+    flags: z.string().default("PA").describe("Flags TCP. Ej: 'S', 'PA', 'F'. Por defecto: 'PA'"),
   }),
 
   execute: async ({ duration, proto, src_ip_addr, src_pt, dst_ip_addr, dst_pt, packets, bytes_str, flags }) => {

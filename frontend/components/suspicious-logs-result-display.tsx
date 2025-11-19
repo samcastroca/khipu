@@ -66,7 +66,7 @@ ${analyzed_log ? `DATOS DEL LOG:
 - Origen: ${analyzed_log.src_ip_addr}:${analyzed_log.src_pt}
 - Destino: ${analyzed_log.dst_ip_addr}:${analyzed_log.dst_pt}
 - Protocolo: ${analyzed_log.proto}
-- Duración: ${analyzed_log.duration.toFixed(2)}s
+- Duración: ${parseFloat(analyzed_log.duration).toFixed(2)}s
 - Paquetes: ${analyzed_log.packets}
 - Bytes: ${analyzed_log.bytes_str}
 - Flags: ${analyzed_log.flags}

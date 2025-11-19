@@ -6,18 +6,15 @@ import { useWindowSize } from "usehooks-ts";
 
 import type { UISuggestion } from "@/lib/editor/suggestions";
 import { cn } from "@/lib/utils";
-import type { ArtifactKind } from "./artifact";
 import { CrossIcon, MessageIcon } from "./icons";
 import { Button } from "./ui/button";
 
 export const Suggestion = ({
   suggestion,
   onApply,
-  artifactKind,
 }: {
   suggestion: UISuggestion;
   onApply: () => void;
-  artifactKind: ArtifactKind;
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const { width: windowWidth } = useWindowSize();
@@ -60,10 +57,7 @@ export const Suggestion = ({
         </motion.div>
       ) : (
         <motion.div
-          className={cn("cursor-pointer p-1 text-muted-foreground", {
-            "-right-8 absolute": artifactKind === "text",
-            "sticky top-0 right-4": artifactKind === "code",
-          })}
+          className={cn("cursor-pointer p-1 text-muted-foreground")}
           onClick={() => {
             setIsExpanded(true);
           }}
