@@ -4,6 +4,7 @@ from app.schemas.responses import SpamClassificationResponse, ErrorResponse
 from app.services.spam_service import SpamClassifierService
 from app.core.config import get_settings
 import logging
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -17,8 +18,9 @@ def get_spam_service():
     """Dependency to get spam service"""
     global spam_service
     if spam_service is None:
-        settings = get_settings()
-        spam_service = SpamClassifierService(settings.spam_model_path)
+        base_dir = Path(__file__).resolve().parent.parent.parent.parent
+        model_path = base_dir / "trained_models" / "spam_classifier.pkl"
+        spam_service = SpamClassifierService(str(model_path))
     return spam_service
 
 
