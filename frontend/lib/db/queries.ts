@@ -1,7 +1,9 @@
 import "server-only";
 
-import type { ArtifactKind } from "@/components/artifact";
-import type { VisibilityType } from "@/components/visibility-selector";
+// Define types previously imported from removed artifact components
+export type VisibilityType = "public" | "private";
+export type ArtifactKind = "text" | "code" | "image" | "sheet";
+
 import {
   and,
   asc,
@@ -24,6 +26,7 @@ import {
   chat,
   type DBMessage,
   document,
+  event,
   message,
   stream,
   type Suggestion,
@@ -589,6 +592,77 @@ export async function getStreamIdsByChatId({ chatId }: { chatId: string }) {
     throw new ChatSDKError(
       "bad_request:database",
       "Failed to get stream ids by chat id"
+    );
+  }
+}
+
+// Event queries
+export async function getEvents(limit = 100, onlyThreats = false) {
+  try {
+    const conditions = onlyThreats ? eq(event.isThreat, true) : undefined;
+    
+    return await db
+      .select()
+      .from(event)
+      .where(conditions)
+      .orderBy(desc(event.createdAt))
+      .limit(limit);
+  } catch (_error) {
+    throw new ChatSDKError(
+      "bad_request:database",
+      "Failed to get events"
+    );
+  }
+}
+
+export async function acknowledgeEvent(eventId: string) {
+  try {
+    const result = await db
+      .update(event)
+      .set({ acknowledgedAt: new Date() })
+      .where(eq(event.id, eventId))
+      .returning();
+
+    return result[0];
+  } catch (_error) {
+    throw new ChatSDKError(
+      "bad_request:database",
+      "Failed to acknowledge event"
+    );
+  }
+}
+
+export async function getEventStats() {
+  try {
+    const [totalResult] = await db
+      .select({ count: count() })
+      .from(event);
+
+    const [threatsResult] = await db
+      .select({ count: count() })
+      .from(event)
+      .where(eq(event.isThreat, true));
+
+    const [criticalResult] = await db
+      .select({ count: count() })
+      .from(event)
+      .where(and(eq(event.isThreat, true), eq(event.severity, "critical")));
+
+    const [acknowledgedResult] = await db
+      .select({ count: count() })
+      .from(event)
+      .where(and(eq(event.isThreat, true), gt(event.acknowledgedAt, new Date(0))));
+
+    return {
+      total: totalResult?.count || 0,
+      threats: threatsResult?.count || 0,
+      critical: criticalResult?.count || 0,
+      acknowledged: acknowledgedResult?.count || 0,
+    };
+  } catch (_error) {
+    throw new ChatSDKError(
+      "bad_request:database",
+      "Failed to get event stats"
     );
   }
 }

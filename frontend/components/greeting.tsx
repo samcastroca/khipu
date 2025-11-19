@@ -23,7 +23,7 @@ export const Greeting = () => {
         initial={{ opacity: 0, y: 10 }}
         transition={{ delay: 0.5 }}
       >
-        Asistente de Ciberseguridad con IA
+        Asistente de Ciberseguridad
       </motion.div>
       <motion.div
         animate={{ opacity: 1, y: 0 }}

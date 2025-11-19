@@ -15,6 +15,7 @@ import { MessageEditor } from "./message-editor";
 import { PhishingResultDisplay } from "./phishing-result-display";
 import { SpamResultDisplay } from "./spam-result-display";
 import { SuspiciousAccessDisplay } from "./suspicious-access-display";
+import { SuspiciousLogsResultDisplay } from "./suspicious-logs-result-display";
 
 const PurePreviewMessage = ({
   chatId,
@@ -213,6 +214,37 @@ const PurePreviewMessage = ({
                       confidence={output.confidence}
                       details={output.details}
                       analyzed_params={output.analyzed_params}
+                      error={output.error}
+                      message={output.message}
+                    />
+                  )}
+                </div>
+              );
+            }
+
+            if (type.startsWith("tool-") && type.includes("suspiciousLogsDetector")) {
+              const { toolCallId, state, output } = part as any;
+
+              return (
+                <div className="my-4" key={toolCallId}>
+                  {state === "partial-call" && (
+                    <div className="rounded-lg border border-purple-200 bg-purple-50 p-4 dark:border-purple-900 dark:bg-purple-950/20">
+                      <div className="flex items-center gap-2">
+                        <div className="size-4 animate-spin rounded-full border-2 border-purple-600 border-t-transparent" />
+                        <span className="text-sm font-medium text-purple-900 dark:text-purple-100">
+                          Analizando log de red con modelo ML...
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  {state === "output-available" && output && (
+                    <SuspiciousLogsResultDisplay
+                      success={output.success}
+                      prediction={output.prediction}
+                      is_suspicious={output.is_suspicious}
+                      confidence={output.confidence}
+                      details={output.details}
+                      analyzed_log={output.analyzed_log}
                       error={output.error}
                       message={output.message}
                     />

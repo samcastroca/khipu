@@ -5,14 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import {
-    AlertCircle,
-    CheckCircle2,
-    Copy,
-    Mail,
-    ShieldAlert,
-    ShieldCheck,
-    TrendingUp,
-    XCircle,
+  AlertCircle,
+  CheckCircle2,
+  Copy,
+  Mail,
+  ShieldAlert,
+  ShieldCheck,
+  TrendingUp,
+  XCircle,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -49,7 +49,7 @@ ANÁLISIS DE SPAM - MODELO ML
 
 Resultado: ${is_spam ? "SPAM DETECTADO" : "EMAIL LEGÍTIMO"}
 Predicción: ${prediction}
-${confidence ? `Confianza: ${(confidence * 100).toFixed(1)}%` : ""}
+${confidence ? `Confianza: ${(confidence * 100).toFixed(2)}%` : ""}
 
 ${details?.detected_patterns ? `PATRONES DETECTADOS:\n${details.detected_patterns.map((p: string, i: number) => `${i + 1}. ${p}`).join("\n")}\n` : ""}
 ${details?.risk_level ? `Nivel de Riesgo: ${details.risk_level.toUpperCase()}\n` : ""}
@@ -90,7 +90,7 @@ Analizado: ${new Date().toLocaleString("es-ES")}
   }
 
   const isSpam = is_spam;
-  const confidencePercent = confidence ? (confidence * 100).toFixed(1) : null;
+  const confidencePercent = confidence ? (confidence * 100).toFixed(2) : null;
 
   return (
     <Card

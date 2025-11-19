@@ -6,6 +6,7 @@ import { myProvider } from "@/lib/ai/providers";
 import { phishingDetector } from "@/lib/ai/tools/phishing-detector";
 import { spamClassifier } from "@/lib/ai/tools/spam-classifier";
 import { suspiciousAccessDetector } from "@/lib/ai/tools/suspicious-access-detector";
+import { suspiciousLogsDetector } from "@/lib/ai/tools/suspicious-logs-detector";
 import { isProductionEnvironment } from "@/lib/constants";
 import {
     createStreamId,
@@ -184,12 +185,13 @@ export async function POST(request: Request) {
           experimental_activeTools:
             selectedChatModel === "chat-model-reasoning"
               ? []
-              : ["spamClassifier", "phishingDetector", "suspiciousAccessDetector"],
+              : ["spamClassifier", "phishingDetector", "suspiciousAccessDetector", "suspiciousLogsDetector"],
           experimental_transform: smoothStream({ chunking: "word" }),
           tools: {
             spamClassifier,
             phishingDetector,
             suspiciousAccessDetector,
+            suspiciousLogsDetector,
           },
           experimental_telemetry: {
             isEnabled: isProductionEnvironment,

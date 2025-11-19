@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { phishingDetector } from "./ai/tools/phishing-detector";
 import type { spamClassifier } from "./ai/tools/spam-classifier";
 import type { suspiciousAccessDetector } from "./ai/tools/suspicious-access-detector";
+import type { suspiciousLogsDetector } from "./ai/tools/suspicious-logs-detector";
 import type { AppUsage } from "./usage";
 
 export type DataPart = { type: "append-message"; message: string };
@@ -16,11 +17,13 @@ export type MessageMetadata = z.infer<typeof messageMetadataSchema>;
 type spamClassifierTool = InferUITool<typeof spamClassifier>;
 type phishingDetectorTool = InferUITool<typeof phishingDetector>;
 type suspiciousAccessDetectorTool = InferUITool<typeof suspiciousAccessDetector>;
+type suspiciousLogsDetectorTool = InferUITool<typeof suspiciousLogsDetector>;
 
 export type ChatTools = {
   spamClassifier: spamClassifierTool;
   phishingDetector: phishingDetectorTool;
   suspiciousAccessDetector: suspiciousAccessDetectorTool;
+  suspiciousLogsDetector: suspiciousLogsDetectorTool;
 };
 
 export type CustomUIDataTypes = {

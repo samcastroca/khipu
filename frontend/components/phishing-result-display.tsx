@@ -5,15 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import {
-    AlertCircle,
-    AlertTriangle,
-    CheckCircle2,
-    Copy,
-    ExternalLink,
-    Link2,
-    ShieldAlert,
-    ShieldCheck,
-    TrendingUp,
+  AlertCircle,
+  AlertTriangle,
+  CheckCircle2,
+  Copy,
+  ExternalLink,
+  Link2,
+  ShieldAlert,
+  ShieldCheck,
+  TrendingUp,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -51,7 +51,7 @@ ANÁLISIS DE PHISHING - MODELO ML
 URL Analizada: ${url}
 Resultado: ${is_phishing ? "PHISHING DETECTADO" : "URL SEGURA"}
 Predicción: ${prediction}
-${confidence ? `Confianza: ${(confidence * 100).toFixed(1)}%` : ""}
+${confidence ? `Confianza: ${(confidence * 100).toFixed(2)}%` : ""}
 
 ${details?.suspicious_features ? `CARACTERÍSTICAS SOSPECHOSAS:\n${details.suspicious_features.map((f: string, i: number) => `${i + 1}. ${f}`).join("\n")}\n` : ""}
 ${details?.risk_level ? `Nivel de Riesgo: ${details.risk_level.toUpperCase()}\n` : ""}
@@ -96,7 +96,7 @@ Analizado: ${new Date().toLocaleString("es-ES")}
   }
 
   const isPhishing = is_phishing;
-  const confidencePercent = confidence ? (confidence * 100).toFixed(1) : null;
+  const confidencePercent = confidence ? (confidence * 100).toFixed(2) : null;
 
   return (
     <Card

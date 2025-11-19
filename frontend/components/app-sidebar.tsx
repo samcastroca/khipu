@@ -12,7 +12,7 @@ import {
   SidebarMenu,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { BotMessageSquare, LayoutDashboard } from "lucide-react";
+import { BotMessageSquare, LayoutDashboard, Shield } from "lucide-react";
 import type { User } from "next-auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -68,8 +68,9 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                   setOpenMobile(false);
                 }}
               >
-                <span className="cursor-pointer rounded-md px-2 font-semibold text-lg hover:bg-muted">
-                  SecureAI
+                <span className="flex gap-2 cursor-pointer rounded-md px-2 font-semibold text-lg hover:bg-muted">
+                  <Shield />
+                  Khipu
                 </span>
               </Link>
               <div className="flex flex-row gap-1">

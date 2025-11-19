@@ -1,15 +1,16 @@
 import type { InferSelectModel } from "drizzle-orm";
 import {
-  boolean,
-  foreignKey,
-  json,
-  jsonb,
-  pgTable,
-  primaryKey,
-  text,
-  timestamp,
-  uuid,
-  varchar,
+    boolean,
+    foreignKey,
+    json,
+    jsonb,
+    numeric,
+    pgTable,
+    primaryKey,
+    text,
+    timestamp,
+    uuid,
+    varchar,
 } from "drizzle-orm/pg-core";
 import type { AppUsage } from "../usage";
 
@@ -172,3 +173,17 @@ export const stream = pgTable(
 );
 
 export type Stream = InferSelectModel<typeof stream>;
+
+export const event = pgTable("Event", {
+  id: uuid("id").primaryKey().notNull().defaultRandom(),
+  type: varchar("type", { length: 50 }).notNull(), // 'email', 'url', 'network_access'
+  rawData: jsonb("rawData").notNull(), // Original event data
+  analysisResult: jsonb("analysisResult"), // ML analysis result
+  severity: varchar("severity", { length: 20 }), // 'low', 'medium', 'high', 'critical'
+  isThreat: boolean("isThreat").default(false).notNull(),
+  confidence: numeric("confidence", { precision: 5, scale: 4 }), // 0.0 to 1.0
+  createdAt: timestamp("createdAt").notNull().defaultNow(),
+  acknowledgedAt: timestamp("acknowledgedAt"),
+});
+
+export type Event = InferSelectModel<typeof event>;

@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-interface SuspiciousAccessDisplayProps {
+interface SuspiciousLogsResultDisplayProps {
   success: boolean;
   prediction: string;
   is_suspicious: boolean;
@@ -27,51 +27,49 @@ interface SuspiciousAccessDisplayProps {
     risk_level?: string;
     [key: string]: any;
   };
-  analyzed_params?: {
-    network_packet_size?: number;
-    protocol_type?: string;
-    login_attempts?: number;
-    session_duration?: number;
-    encryption_used?: string;
-    ip_reputation_score?: number;
-    failed_logins?: number;
-    browser_type?: string;
-    unusual_time_access?: number;
+  analyzed_log?: {
+    duration: string;
+    proto: string;
+    src_ip_addr: string;
+    src_pt: string;
+    dst_ip_addr: string;
+    dst_pt: string;
+    packets: string;
+    bytes_str: string;
+    flags: string;
   };
   error?: string;
   message?: string;
 }
 
-export function SuspiciousAccessDisplay({
+export function SuspiciousLogsResultDisplay({
   success,
   prediction,
   is_suspicious,
   confidence,
   details,
-  analyzed_params,
+  analyzed_log,
   error,
   message,
-}: SuspiciousAccessDisplayProps) {
+}: SuspiciousLogsResultDisplayProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopyReport = () => {
     const report = `
-ANÁLISIS DE ACCESO SOSPECHOSO - MODELO ML
+ANÁLISIS DE LOG DE RED SOSPECHOSO - MODELO ML
 
-Resultado: ${is_suspicious ? "ACCESO SOSPECHOSO DETECTADO" : "ACCESO NORMAL"}
+Resultado: ${is_suspicious ? "ACTIVIDAD SOSPECHOSA DETECTADA" : "ACTIVIDAD NORMAL"}
 Predicción: ${prediction}
 ${confidence ? `Confianza: ${(confidence * 100).toFixed(2)}%` : ""}
 
-${analyzed_params ? `PARÁMETROS ANALIZADOS:
-- Tamaño de paquete: ${analyzed_params.network_packet_size} bytes
-- Protocolo: ${analyzed_params.protocol_type}
-- Intentos de login: ${analyzed_params.login_attempts}
-- Duración de sesión: ${analyzed_params.session_duration} min
-- Encriptación: ${analyzed_params.encryption_used}
-- Reputación IP: ${analyzed_params.ip_reputation_score}/100
-- Logins fallidos: ${analyzed_params.failed_logins}
-- Navegador: ${analyzed_params.browser_type}
-- Horario inusual: ${analyzed_params.unusual_time_access ? "Sí" : "No"}
+${analyzed_log ? `DATOS DEL LOG:
+- Origen: ${analyzed_log.src_ip_addr}:${analyzed_log.src_pt}
+- Destino: ${analyzed_log.dst_ip_addr}:${analyzed_log.dst_pt}
+- Protocolo: ${analyzed_log.proto}
+- Duración: ${analyzed_log.duration.toFixed(2)}s
+- Paquetes: ${analyzed_log.packets}
+- Bytes: ${analyzed_log.bytes_str}
+- Flags: ${analyzed_log.flags}
 ` : ""}
 ${details?.anomaly_factors ? `FACTORES DE ANOMALÍA:\n${details.anomaly_factors.map((f: string, i: number) => `${i + 1}. ${f}`).join("\n")}\n` : ""}
 ${details?.risk_level ? `Nivel de Riesgo: ${details.risk_level.toUpperCase()}\n` : ""}
@@ -194,80 +192,68 @@ Analizado: ${new Date().toLocaleString("es-ES")}
             <div>
               <p className="font-medium">
                 {isSuspicious
-                  ? "Este acceso presenta comportamiento anómalo"
-                  : "Este acceso presenta comportamiento normal"}
+                  ? "Este log de red presenta comportamiento anómalo"
+                  : "Este log de red presenta comportamiento normal"}
               </p>
               <p className="mt-1 text-sm opacity-80">
                 {isSuspicious
-                  ? "El modelo ML detectó patrones inconsistentes con actividad legítima"
-                  : "El modelo ML no encontró indicadores significativos de actividad maliciosa"}
+                  ? "El modelo ML detectó patrones inconsistentes con tráfico legítimo"
+                  : "El modelo ML no encontró indicadores significativos de actividad sospechosa"}
               </p>
             </div>
           </div>
         </div>
 
-        {/* Parámetros analizados */}
-        {analyzed_params && (
+        {/* Log de red analizado */}
+        {analyzed_log && (
           <>
             <Separator />
             <div>
               <h4 className="mb-3 flex items-center gap-2 font-medium">
                 <Activity className="size-4" />
-                Parámetros de Acceso
+                Datos del Log de Red
               </h4>
               <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-md bg-white/50 p-2.5 dark:bg-gray-900/30">
-                  <p className="text-xs opacity-60">Tamaño de paquete</p>
+                  <p className="text-xs opacity-60">IP Origen</p>
                   <p className="mt-0.5 font-mono text-sm font-medium">
-                    {analyzed_params.network_packet_size} bytes
+                    {analyzed_log.src_ip_addr}:{analyzed_log.src_pt}
+                  </p>
+                </div>
+                <div className="rounded-md bg-white/50 p-2.5 dark:bg-gray-900/30">
+                  <p className="text-xs opacity-60">IP Destino</p>
+                  <p className="mt-0.5 font-mono text-sm font-medium">
+                    {analyzed_log.dst_ip_addr}:{analyzed_log.dst_pt}
                   </p>
                 </div>
                 <div className="rounded-md bg-white/50 p-2.5 dark:bg-gray-900/30">
                   <p className="text-xs opacity-60">Protocolo</p>
                   <p className="mt-0.5 font-mono text-sm font-medium">
-                    {analyzed_params.protocol_type}
+                    {analyzed_log.proto}
                   </p>
                 </div>
                 <div className="rounded-md bg-white/50 p-2.5 dark:bg-gray-900/30">
-                  <p className="text-xs opacity-60">Intentos de login</p>
+                  <p className="text-xs opacity-60">Duración</p>
                   <p className="mt-0.5 font-mono text-sm font-medium">
-                    {analyzed_params.login_attempts}
+                    {analyzed_log.duration}
                   </p>
                 </div>
                 <div className="rounded-md bg-white/50 p-2.5 dark:bg-gray-900/30">
-                  <p className="text-xs opacity-60">Logins fallidos</p>
+                  <p className="text-xs opacity-60">Paquetes</p>
                   <p className="mt-0.5 font-mono text-sm font-medium">
-                    {analyzed_params.failed_logins}
+                    {analyzed_log.packets}
                   </p>
                 </div>
                 <div className="rounded-md bg-white/50 p-2.5 dark:bg-gray-900/30">
-                  <p className="text-xs opacity-60">Duración de sesión</p>
+                  <p className="text-xs opacity-60">Bytes</p>
                   <p className="mt-0.5 font-mono text-sm font-medium">
-                    {analyzed_params.session_duration} min
-                  </p>
-                </div>
-                <div className="rounded-md bg-white/50 p-2.5 dark:bg-gray-900/30">
-                  <p className="text-xs opacity-60">Encriptación</p>
-                  <p className="mt-0.5 font-mono text-sm font-medium">
-                    {analyzed_params.encryption_used}
-                  </p>
-                </div>
-                <div className="rounded-md bg-white/50 p-2.5 dark:bg-gray-900/30">
-                  <p className="text-xs opacity-60">Reputación IP</p>
-                  <p className="mt-0.5 font-mono text-sm font-medium">
-                    {analyzed_params.ip_reputation_score}/100
-                  </p>
-                </div>
-                <div className="rounded-md bg-white/50 p-2.5 dark:bg-gray-900/30">
-                  <p className="text-xs opacity-60">Navegador</p>
-                  <p className="mt-0.5 font-mono text-sm font-medium">
-                    {analyzed_params.browser_type}
+                    {analyzed_log.bytes_str}
                   </p>
                 </div>
                 <div className="col-span-2 rounded-md bg-white/50 p-2.5 dark:bg-gray-900/30">
-                  <p className="text-xs opacity-60">Horario inusual</p>
+                  <p className="text-xs opacity-60">Flags</p>
                   <p className="mt-0.5 font-mono text-sm font-medium">
-                    {analyzed_params.unusual_time_access ? "Sí" : "No"}
+                    {analyzed_log.flags}
                   </p>
                 </div>
               </div>
@@ -329,11 +315,11 @@ Analizado: ${new Date().toLocaleString("es-ES")}
                 ⚠️ Acciones Recomendadas
               </p>
               <ul className="mt-2 space-y-1 text-xs text-red-800 dark:text-red-200">
-                <li>• Verificar la legitimidad del acceso con el usuario</li>
-                <li>• Revisar logs completos de la sesión</li>
-                <li>• Considerar bloqueo temporal de la IP</li>
+                <li>• Analizar patrones de tráfico desde la IP origen</li>
+                <li>• Verificar legitimidad del protocolo y puertos utilizados</li>
+                <li>• Revisar flags TCP/UDP para detectar anomalías</li>
+                <li>• Considerar bloqueo temporal de la IP origen</li>
                 <li>• Escalar a equipo de respuesta a incidentes</li>
-                <li>• Monitorear actividad futura desde este origen</li>
               </ul>
             </div>
           </>
