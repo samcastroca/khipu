@@ -66,3 +66,31 @@ class AgentAnalysisRequest(BaseModel):
                 "context": {}
             }
         }
+
+
+class SuspiciousLogsRequest(BaseModel):
+    """Request schema for suspicious network logs detection"""
+    duration: float = Field(..., description="Duración de la conexión", ge=0)
+    proto: str = Field(..., description="Protocolo (TCP, UDP, ICMP, etc.)")
+    src_ip_addr: str = Field(..., description="Dirección IP de origen")
+    src_pt: int = Field(..., description="Puerto de origen", ge=0, le=65535)
+    dst_ip_addr: str = Field(..., description="Dirección IP de destino")
+    dst_pt: float = Field(..., description="Puerto de destino", ge=0, le=65535)
+    packets: int = Field(..., description="Número de paquetes", ge=0)
+    bytes_str: str = Field(..., description="Bytes transferidos (e.g., '2.1 M', '500 K', '1234')")
+    flags: str = Field(..., description="Flags TCP (e.g., '.AP...', 'S.....', etc.)")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "duration": 81412.697,
+                "proto": "TCP",
+                "src_ip_addr": "EXT_SERVER",
+                "src_pt": 8082,
+                "dst_ip_addr": "OPENSTACK_NET",
+                "dst_pt": 56978,
+                "packets": 3057,
+                "bytes_str": "2.1 M",
+                "flags": ".AP..."
+            }
+        }

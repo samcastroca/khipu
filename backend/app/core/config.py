@@ -1,5 +1,6 @@
 from pydantic_settings import BaseSettings
 from functools import lru_cache
+from typing import Optional
 
 
 class Settings(BaseSettings):
@@ -13,8 +14,8 @@ class Settings(BaseSettings):
     api_port: int = 8000
     api_reload: bool = True
     
-    # OpenAI Configuration
-    openai_api_key: str
+    # OpenAI Configuration (opcional - solo para el endpoint de agent)
+    openai_api_key: Optional[str] = None
     openai_model: str = "gpt-4"
     
     # CORS
