@@ -4,6 +4,7 @@ from app.schemas.responses import SuspiciousAccessResponse, ErrorResponse
 from app.services.suspicious_service import SuspiciousAccessService
 from app.core.config import get_settings
 import logging
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -17,8 +18,9 @@ def get_suspicious_service():
     """Dependency to get suspicious access service"""
     global suspicious_service
     if suspicious_service is None:
-        settings = get_settings()
-        suspicious_service = SuspiciousAccessService(settings.suspicious_access_model_path)
+        base_dir = Path(__file__).resolve().parent.parent.parent.parent
+        model_path = base_dir / "trained_models" / "suspicious_access_classifier.pkl"
+        suspicious_service = SuspiciousAccessService(str(model_path))
     return suspicious_service
 
 

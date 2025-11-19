@@ -4,6 +4,7 @@ from app.schemas.responses import PhishingURLResponse, ErrorResponse
 from app.services.phishing_service import PhishingURLService
 from app.core.config import get_settings
 import logging
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -17,8 +18,9 @@ def get_phishing_service():
     """Dependency to get phishing service"""
     global phishing_service
     if phishing_service is None:
-        settings = get_settings()
-        phishing_service = PhishingURLService(settings.phishing_url_model_path)
+        base_dir = Path(__file__).resolve().parent.parent.parent.parent
+        model_path = base_dir / "trained_models" / "phishing_url_logistic_regression.pkl"
+        phishing_service = PhishingURLService(str(model_path))
     return phishing_service
 
 
